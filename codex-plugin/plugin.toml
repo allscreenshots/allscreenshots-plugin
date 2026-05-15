@@ -1,0 +1,13 @@
+name = "allscreenshots"
+version = "1.0.0"
+description = "Take website screenshots via the Allscreenshots API using an MCP server."
+homepage = "https://allscreenshots.com"
+repository = "https://github.com/allscreenshots/allscreenshots-plugin"
+license = "MIT"
+
+[mcp_servers.allscreenshots]
+command = "uv"
+args = ["run", "--with", "fastmcp>=2.0", "--with", "httpx>=0.27", "fastmcp", "run", "../mcp_server/server.py"]
+
+[mcp_servers.allscreenshots.env]
+ALLSCREENSHOTS_API_KEY = ""
