@@ -33,6 +33,8 @@ Set your API key in the MCP server environment when prompted, or expose it in yo
 export ALLSCREENSHOTS_API_KEY=your-key-here
 ```
 
+The bundled Codex MCP config does not set an empty API key. It inherits `ALLSCREENSHOTS_API_KEY` from the Codex process. If you launch Codex from a desktop app, make sure that app process can see the variable, or provide the key directly in the request.
+
 ## Usage
 
 - "Take a screenshot of https://example.com"

@@ -12,10 +12,7 @@
         "run",
         "./mcp_server/server.py"
       ],
-      "cwd": ".",
-      "env": {
-        "ALLSCREENSHOTS_API_KEY": ""
-      }
+      "cwd": "."
     }
   }
 }

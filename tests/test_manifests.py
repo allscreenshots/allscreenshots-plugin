@@ -26,7 +26,7 @@ def test_codex_plugin_manifest_points_to_shared_server():
     manifest = json.loads((ROOT / ".codex-plugin/plugin.json").read_text())
 
     assert manifest["name"] == "allscreenshots"
-    assert manifest["version"] == "1.0.2"
+    assert manifest["version"] == "1.0.3"
     assert manifest["skills"] == "./skills/"
     assert manifest["mcpServers"] == "./.mcp.json"
     assert manifest["interface"]["displayName"] == "Allscreenshots"
@@ -39,7 +39,7 @@ def test_root_mcp_config_points_to_shared_server():
     assert server["command"] == "uv"
     assert "./mcp_server/server.py" in server["args"]
     assert server["cwd"] == "."
-    assert server["env"]["ALLSCREENSHOTS_API_KEY"] == ""
+    assert "env" not in server
 
 
 def test_marketplace_points_to_root_plugin_repository():

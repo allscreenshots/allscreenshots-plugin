@@ -64,6 +64,8 @@ export ALLSCREENSHOTS_API_KEY=your-key-here
 
 You can also pass an API key directly through the `api_key` parameter when calling `take_screenshot`.
 
+For Codex marketplace installs, the bundled MCP config intentionally does not set `ALLSCREENSHOTS_API_KEY`; it inherits the environment from the Codex process. If you launch Codex from a desktop app, make sure the app process has the variable, or pass the key directly when asking for a screenshot.
+
 ## Available Tools
 
 | Tool | Description | Parameters |
