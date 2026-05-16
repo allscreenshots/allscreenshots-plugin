@@ -26,7 +26,7 @@ def test_codex_plugin_manifest_points_to_shared_server():
     manifest = json.loads((ROOT / ".codex-plugin/plugin.json").read_text())
 
     assert manifest["name"] == "allscreenshots"
-    assert manifest["version"] == "1.0.1"
+    assert manifest["version"] == "1.0.2"
     assert manifest["skills"] == "./skills/"
     assert manifest["mcpServers"] == "./.mcp.json"
     assert manifest["interface"]["displayName"] == "Allscreenshots"
