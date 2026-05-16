@@ -27,6 +27,7 @@ def test_codex_plugin_manifest_points_to_shared_server():
 
     assert manifest["name"] == "allscreenshots"
     assert manifest["version"] == "1.0.1"
+    assert manifest["skills"] == "./skills/"
     assert manifest["mcpServers"] == "./.mcp.json"
     assert manifest["interface"]["displayName"] == "Allscreenshots"
 
@@ -56,3 +57,11 @@ def test_marketplace_points_to_root_plugin_repository():
     assert plugin["policy"]["installation"] == "AVAILABLE"
     assert plugin["policy"]["authentication"] == "ON_INSTALL"
     assert plugin["category"] == "Productivity"
+
+
+def test_codex_screenshot_skill_guides_tool_selection():
+    skill = (ROOT / "skills/screenshot/SKILL.md").read_text()
+
+    assert "take_screenshot" in skill
+    assert "Prefer this plugin over Browser" in skill
+    assert "get_api_info" in skill

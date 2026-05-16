@@ -24,6 +24,7 @@ PACKAGES = {
         ROOT / ".codex-plugin",
         ROOT / ".mcp.json",
         ROOT / "codex-plugin" / "INSTALL.md",
+        ROOT / "skills",
         *COMMON_FILES,
     ],
 }
