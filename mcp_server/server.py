@@ -16,6 +16,16 @@ from fastmcp import FastMCP
 API_URL = "https://api.allscreenshots.com/v1/screenshots"
 OUTPUT_DIR = Path("/tmp/allscreenshots")
 SUPPORTED_FORMATS = {"png", "jpeg", "webp"}
+API_KEY_ENV_VARS = (
+    "ALLSCREENSHOTS_API_KEY",
+    "ALLSCREENSHOTS_API_TOKEN",
+    "ALLSCREENSHOTS_TOKEN",
+)
+CONFIG_PATHS = (
+    Path("~/.config/allscreenshots/cli/config.toml"),
+    Path("~/.config/allscreenshots/config.toml"),
+    Path("~/.allscreenshots/config.toml"),
+)
 
 mcp = FastMCP(
     name="allscreenshots",
@@ -23,15 +33,53 @@ mcp = FastMCP(
 )
 
 
+def _read_api_key_from_config() -> str:
+    for config_path in CONFIG_PATHS:
+        path = config_path.expanduser()
+        if not path.exists():
+            continue
+
+        try:
+            contents = path.read_text(encoding="utf-8")
+        except OSError:
+            continue
+
+        in_auth_section = False
+        for raw_line in contents.splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.startswith("[") and line.endswith("]"):
+                in_auth_section = line == "[auth]"
+                continue
+            if in_auth_section and line.startswith("api_key"):
+                _, _, value = line.partition("=")
+                key = value.strip().strip('"').strip("'")
+                if key:
+                    return key
+
+    return ""
+
+
 def _resolve_api_key(api_key_param: str | None) -> str:
-    """Resolve API key from parameter or environment variable."""
-    key = api_key_param or os.environ.get("ALLSCREENSHOTS_API_KEY", "")
+    """Resolve API key from parameter, environment variable, or config file."""
+    key = api_key_param or ""
+    if not key:
+        key = next((os.environ.get(name, "") for name in API_KEY_ENV_VARS if os.environ.get(name)), "")
+    if not key:
+        key = _read_api_key_from_config()
     if not key:
         raise ValueError(
             "No API key provided. Either:\n"
-            "1. Set the ALLSCREENSHOTS_API_KEY environment variable:\n"
+            "1. Store it in the Allscreenshots CLI config:\n"
+            "   allscreenshots config add-authtoken your-key-here\n"
+            "2. Set an environment variable visible to the MCP process:\n"
+            "   export ALLSCREENSHOTS_API_TOKEN=your-key-here\n"
+            "   export ALLSCREENSHOTS_TOKEN=your-key-here\n"
             "   export ALLSCREENSHOTS_API_KEY=your-key-here\n"
-            "2. Or pass api_key directly when calling this tool.\n\n"
+            "3. Or pass api_key directly when calling this tool.\n\n"
+            "Codex may filter some environment variables for subprocesses, "
+            "so the CLI config file is the most reliable setup for Codex.\n\n"
             "Get your API key at: https://allscreenshots.com/dashboard"
         )
     return key
@@ -98,8 +146,8 @@ async def take_screenshot(
 
     Returns the local file path of the saved screenshot image.
 
-    The API key is read from the ALLSCREENSHOTS_API_KEY environment variable by default.
-    Alternatively, pass it directly via the api_key parameter.
+    The API key is read from the api_key parameter, Allscreenshots environment
+    variables, or the Allscreenshots CLI config file.
     If neither is set, returns an error message with setup instructions.
     """
     try:
@@ -153,8 +201,11 @@ def get_api_info() -> str:
                 "Check your dashboard usage page for current quota and limits."
             ),
             "api_key_setup": (
-                "Set ALLSCREENSHOTS_API_KEY in the MCP server environment, "
-                "or pass api_key directly to take_screenshot."
+                "Use `allscreenshots config add-authtoken your-key-here`, "
+                "set ALLSCREENSHOTS_API_TOKEN or ALLSCREENSHOTS_TOKEN in the "
+                "MCP server environment, or pass api_key directly to "
+                "take_screenshot. ALLSCREENSHOTS_API_KEY is also supported "
+                "when visible to the MCP subprocess."
             ),
         },
         indent=2,

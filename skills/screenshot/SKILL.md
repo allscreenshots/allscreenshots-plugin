@@ -23,7 +23,9 @@ If the user provides a URL without a protocol, prepend `https://`.
 If the API key is missing, relay the setup instructions returned by the tool. The user can set:
 
 ```bash
-export ALLSCREENSHOTS_API_KEY=your-key-here
+allscreenshots config add-authtoken your-key-here
 ```
+
+For Codex, prefer the CLI config setup because Codex may filter inherited environment variables for subprocesses. The tool also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, `ALLSCREENSHOTS_API_KEY`, and the direct `api_key` parameter.
 
 If the user asks how to get a key, call the `get_api_info` tool.

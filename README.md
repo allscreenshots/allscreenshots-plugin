@@ -46,7 +46,7 @@ Configure your MCP client to run:
 uv run --with "fastmcp>=2.0" --with "httpx>=0.27" fastmcp run /path/to/allscreenshots-plugin/mcp_server/server.py
 ```
 
-Set `ALLSCREENSHOTS_API_KEY` in the MCP server environment.
+Set an API key in the MCP server environment or store it with `allscreenshots config add-authtoken your-key-here`.
 
 ## Configuration
 
@@ -59,12 +59,18 @@ https://allscreenshots.com/dashboard
 Then set it as an environment variable:
 
 ```bash
-export ALLSCREENSHOTS_API_KEY=your-key-here
+export ALLSCREENSHOTS_API_TOKEN=your-key-here
 ```
 
 You can also pass an API key directly through the `api_key` parameter when calling `take_screenshot`.
 
-For Codex marketplace installs, the bundled MCP config intentionally does not set `ALLSCREENSHOTS_API_KEY`; it inherits the environment from the Codex process. If you launch Codex from a desktop app, make sure the app process has the variable, or pass the key directly when asking for a screenshot.
+For Codex marketplace installs, the most reliable setup is the Allscreenshots CLI config file because Codex can filter inherited environment variables for subprocesses:
+
+```bash
+allscreenshots config add-authtoken your-key-here
+```
+
+The MCP server also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, and `ALLSCREENSHOTS_API_KEY` when those variables are visible to the Codex MCP subprocess.
 
 ## Available Tools
 
@@ -88,7 +94,7 @@ Run the MCP server locally:
 
 ```bash
 cd mcp_server
-export ALLSCREENSHOTS_API_KEY=test-key
+export ALLSCREENSHOTS_API_TOKEN=test-key
 uv run --with "fastmcp>=2.0" --with "httpx>=0.27" fastmcp run server.py
 ```
 
