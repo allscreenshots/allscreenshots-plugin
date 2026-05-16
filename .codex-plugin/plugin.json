@@ -1,6 +1,6 @@
 {
   "name": "allscreenshots",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Take website screenshots via the Allscreenshots API.",
   "author": {
     "name": "Allscreenshots",

@@ -32,6 +32,12 @@ codex
 
 Choose the Allscreenshots marketplace, open the Allscreenshots plugin, and install it. The plugin bundles the MCP server configuration, so you do not need to paste a long `codex mcp add` command.
 
+If you already installed an older version, refresh the marketplace first:
+
+```bash
+codex plugin marketplace upgrade allscreenshots
+```
+
 ### Generic MCP Client
 
 Configure your MCP client to run:

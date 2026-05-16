@@ -19,6 +19,12 @@ Select the Allscreenshots marketplace, open the Allscreenshots plugin, and choos
 
 The plugin bundles its MCP server configuration through `.codex-plugin/plugin.json` and `.mcp.json`, so you do not need to manually configure `~/.codex/config.toml`.
 
+If you already installed an older version, refresh the marketplace first:
+
+```bash
+codex plugin marketplace upgrade allscreenshots
+```
+
 ## API Key
 
 Set your API key in the MCP server environment when prompted, or expose it in your shell before launching Codex:
