@@ -12,13 +12,14 @@ Take website screenshots from Claude Code, OpenAI Codex, and any MCP-compatible 
 
 ### Claude Code
 
-Install the Claude Code plugin from this repository:
+Add the Allscreenshots marketplace, then install the plugin:
 
 ```bash
-/plugin install github:allscreenshots/allscreenshots-plugin
+/plugin marketplace add allscreenshots/allscreenshots-plugin
+/plugin install allscreenshots@allscreenshots
 ```
 
-The Claude Code plugin lives in `claude-code-plugin/` and launches the shared MCP server in `mcp_server/server.py`.
+Restart Claude Code after installation. The plugin launches the shared MCP server in `mcp_server/server.py`.
 
 ### OpenAI Codex
 

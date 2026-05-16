@@ -1,0 +1,24 @@
+{
+  "name": "allscreenshots",
+  "owner": {
+    "name": "Allscreenshots"
+  },
+  "description": "Allscreenshots plugins for Claude Code.",
+  "plugins": [
+    {
+      "name": "allscreenshots",
+      "source": {
+        "source": "github",
+        "repo": "allscreenshots/allscreenshots-plugin",
+        "ref": "main"
+      },
+      "description": "Take website screenshots via the Allscreenshots API.",
+      "category": "Productivity",
+      "tags": [
+        "screenshots",
+        "websites",
+        "mcp"
+      ]
+    }
+  ]
+}

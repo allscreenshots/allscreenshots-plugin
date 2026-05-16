@@ -6,14 +6,30 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_claude_plugin_manifest():
-    manifest = json.loads((ROOT / "claude-code-plugin/.claude-plugin/plugin.json").read_text())
+    manifest = json.loads((ROOT / ".claude-plugin/plugin.json").read_text())
 
     assert manifest["name"] == "allscreenshots"
-    assert manifest["version"] == "1.0.0"
+    assert manifest["version"] == "1.0.5"
     assert manifest["repository"] == "https://github.com/allscreenshots/allscreenshots-plugin"
+    assert manifest["skills"] == "./skills/"
+    assert "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py" in manifest["mcpServers"]["allscreenshots"]["args"]
 
 
-def test_claude_mcp_config_points_to_shared_server():
+def test_claude_marketplace_points_to_plugin_repository():
+    marketplace = json.loads((ROOT / ".claude-plugin/marketplace.json").read_text())
+    plugin = marketplace["plugins"][0]
+
+    assert marketplace["name"] == "allscreenshots"
+    assert marketplace["owner"]["name"] == "Allscreenshots"
+    assert plugin["name"] == "allscreenshots"
+    assert plugin["source"] == {
+        "source": "github",
+        "repo": "allscreenshots/allscreenshots-plugin",
+        "ref": "main",
+    }
+
+
+def test_legacy_claude_plugin_config_points_to_shared_server():
     config = json.loads((ROOT / "claude-code-plugin/.mcp.json").read_text())
     server = config["allscreenshots"]
 
