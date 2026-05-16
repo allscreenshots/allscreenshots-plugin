@@ -2,35 +2,32 @@
 
 ## Installation
 
-### Option 1: CLI
+Add the Allscreenshots marketplace:
 
 ```bash
-codex mcp add allscreenshots --env ALLSCREENSHOTS_API_KEY=your-key-here -- uv run --with "fastmcp>=2.0" --with "httpx>=0.27" fastmcp run /path/to/mcp_server/server.py
+codex plugin marketplace add allscreenshots/allscreenshots-plugin
 ```
 
-### Option 2: Edit config.toml
-
-Add to `~/.codex/config.toml`:
-
-```toml
-[mcp_servers.allscreenshots]
-command = "uv"
-args = ["run", "--with", "fastmcp>=2.0", "--with", "httpx>=0.27", "fastmcp", "run", "/path/to/mcp_server/server.py"]
-
-[mcp_servers.allscreenshots.env]
-ALLSCREENSHOTS_API_KEY = "your-key-here"
-```
-
-### Option 3: pip install + direct run
+Open the Codex plugin directory:
 
 ```bash
-pip install fastmcp httpx
-codex mcp add allscreenshots --env ALLSCREENSHOTS_API_KEY=your-key-here -- python3 /path/to/mcp_server/server.py
+codex
+/plugins
+```
+
+Select the Allscreenshots marketplace, open the Allscreenshots plugin, and choose `Install plugin`.
+
+The plugin bundles its MCP server configuration through `.codex-plugin/plugin.json` and `.mcp.json`, so you do not need to manually configure `~/.codex/config.toml`.
+
+## API Key
+
+Set your API key in the MCP server environment when prompted, or expose it in your shell before launching Codex:
+
+```bash
+export ALLSCREENSHOTS_API_KEY=your-key-here
 ```
 
 ## Usage
-
-Once configured, just ask Codex:
 
 - "Take a screenshot of https://example.com"
 - "Screenshot this page in dark mode"

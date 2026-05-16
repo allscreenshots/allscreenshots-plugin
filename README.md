@@ -22,11 +22,15 @@ The Claude Code plugin lives in `claude-code-plugin/` and launches the shared MC
 
 ### OpenAI Codex
 
+Add the Allscreenshots marketplace, then install the plugin from Codex's plugin directory:
+
 ```bash
-codex mcp add allscreenshots \
-  --env ALLSCREENSHOTS_API_KEY=your-key-here \
-  -- uv run --with "fastmcp>=2.0" --with "httpx>=0.27" fastmcp run /path/to/allscreenshots-plugin/mcp_server/server.py
+codex plugin marketplace add allscreenshots/allscreenshots-plugin
+codex
+/plugins
 ```
+
+Choose the Allscreenshots marketplace, open the Allscreenshots plugin, and install it. The plugin bundles the MCP server configuration, so you do not need to paste a long `codex mcp add` command.
 
 ### Generic MCP Client
 
@@ -93,6 +97,14 @@ python3 scripts/package_plugins.py
 ```
 
 Archives are written to `dist/`.
+
+Inspect the Codex marketplace metadata:
+
+```bash
+codex plugin marketplace add ./path/to/allscreenshots-plugin
+codex
+/plugins
+```
 
 ## License
 

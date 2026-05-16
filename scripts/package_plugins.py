@@ -19,7 +19,13 @@ COMMON_FILES = [
 
 PACKAGES = {
     "allscreenshots-claude-code-plugin.zip": [ROOT / "claude-code-plugin", *COMMON_FILES],
-    "allscreenshots-codex-plugin.zip": [ROOT / "codex-plugin", *COMMON_FILES],
+    "allscreenshots-codex-plugin.zip": [
+        ROOT / ".agents",
+        ROOT / ".codex-plugin",
+        ROOT / ".mcp.json",
+        ROOT / "codex-plugin" / "INSTALL.md",
+        *COMMON_FILES,
+    ],
 }
 
 
