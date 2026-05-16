@@ -72,6 +72,12 @@ allscreenshots config add-authtoken your-key-here
 
 The MCP server also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, and `ALLSCREENSHOTS_API_KEY` when those variables are visible to the Codex MCP subprocess.
 
+On macOS, `allscreenshots config add-authtoken` writes to:
+
+```text
+~/Library/Application Support/com.allscreenshots.cli/config.toml
+```
+
 ## Available Tools
 
 | Tool | Description | Parameters |

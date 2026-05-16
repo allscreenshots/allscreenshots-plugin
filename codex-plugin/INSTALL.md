@@ -33,6 +33,12 @@ For Codex, the most reliable setup is the Allscreenshots CLI config file because
 allscreenshots config add-authtoken your-key-here
 ```
 
+On macOS, the CLI writes that key to:
+
+```text
+~/Library/Application Support/com.allscreenshots.cli/config.toml
+```
+
 The MCP server also supports these environment variables when they are visible to the Codex MCP subprocess:
 
 ```bash

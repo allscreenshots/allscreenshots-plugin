@@ -22,6 +22,8 @@ API_KEY_ENV_VARS = (
     "ALLSCREENSHOTS_TOKEN",
 )
 CONFIG_PATHS = (
+    Path("~/Library/Application Support/com.allscreenshots.cli/config.toml"),
+    Path("~/Library/Application Support/com.allscreenshots.cli/config/config.toml"),
     Path("~/.config/allscreenshots/cli/config.toml"),
     Path("~/.config/allscreenshots/config.toml"),
     Path("~/.allscreenshots/config.toml"),

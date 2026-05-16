@@ -28,4 +28,6 @@ allscreenshots config add-authtoken your-key-here
 
 For Codex, prefer the CLI config setup because Codex may filter inherited environment variables for subprocesses. The tool also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, `ALLSCREENSHOTS_API_KEY`, and the direct `api_key` parameter.
 
+On macOS, the CLI config path is `~/Library/Application Support/com.allscreenshots.cli/config.toml`.
+
 If the user asks how to get a key, call the `get_api_info` tool.

@@ -40,6 +40,10 @@ def test_resolve_api_key_uses_cli_config(monkeypatch, tmp_path):
     assert server._resolve_api_key(None) == "config-key"
 
 
+def test_default_config_paths_include_macos_cli_location():
+    assert Path("~/Library/Application Support/com.allscreenshots.cli/config.toml") in server.CONFIG_PATHS
+
+
 def test_resolve_api_key_error_includes_setup(monkeypatch):
     monkeypatch.delenv("ALLSCREENSHOTS_API_KEY", raising=False)
     monkeypatch.delenv("ALLSCREENSHOTS_API_TOKEN", raising=False)
