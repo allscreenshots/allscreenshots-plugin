@@ -17,19 +17,24 @@ COMMON_FILES = [
     ROOT / "mcp_server" / "requirements.txt",
 ]
 
+CLAUDE_PLUGIN = ROOT / "claude-code-plugin"
+
 PACKAGES = {
     "allscreenshots-claude-code-plugin.zip": [
-        ROOT / ".claude-plugin",
-        ROOT / "skills",
-        *COMMON_FILES,
+        (CLAUDE_PLUGIN / ".claude-plugin", CLAUDE_PLUGIN),
+        (CLAUDE_PLUGIN / ".mcp.json", CLAUDE_PLUGIN),
+        (CLAUDE_PLUGIN / "mcp_server", CLAUDE_PLUGIN),
+        (CLAUDE_PLUGIN / "skills", CLAUDE_PLUGIN),
+        (ROOT / "LICENSE", ROOT),
+        (ROOT / "README.md", ROOT),
     ],
     "allscreenshots-codex-plugin.zip": [
-        ROOT / ".agents",
-        ROOT / ".codex-plugin",
-        ROOT / ".mcp.json",
-        ROOT / "codex-plugin" / "INSTALL.md",
-        ROOT / "skills",
-        *COMMON_FILES,
+        (ROOT / ".agents", ROOT),
+        (ROOT / ".codex-plugin", ROOT),
+        (ROOT / ".mcp.json", ROOT),
+        (ROOT / "codex-plugin" / "INSTALL.md", ROOT),
+        (ROOT / "skills", ROOT),
+        *((path, ROOT) for path in COMMON_FILES),
     ],
 }
 
@@ -40,13 +45,13 @@ def iter_files(path: Path) -> list[Path]:
     return sorted(p for p in path.rglob("*") if p.is_file())
 
 
-def write_archive(name: str, paths: list[Path]) -> Path:
+def write_archive(name: str, paths: list[tuple[Path, Path]]) -> Path:
     DIST.mkdir(exist_ok=True)
     archive = DIST / name
     with ZipFile(archive, "w", ZIP_DEFLATED) as zip_file:
-        for path in paths:
+        for path, base in paths:
             for file_path in iter_files(path):
-                zip_file.write(file_path, file_path.relative_to(ROOT))
+                zip_file.write(file_path, file_path.relative_to(base))
     return archive
 
 

@@ -12,13 +12,13 @@ Take a screenshot of a website using the Allscreenshots API.
 Before using, check if the API key is configured by calling the `take_screenshot` MCP tool.
 If the key is missing, the tool returns setup instructions. Relay these to the user.
 
-The user can set their key with:
+For Claude Code on macOS, the most reliable setup is the Allscreenshots CLI config file:
 
 ```bash
-export ALLSCREENSHOTS_API_KEY=your-key-here
+allscreenshots config add-authtoken your-key-here
 ```
 
-Or they can pass it directly: tell them to provide it and you'll pass it as the `api_key` parameter.
+The tool also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, `ALLSCREENSHOTS_API_KEY`, and the direct `api_key` parameter.
 
 ## Usage
 

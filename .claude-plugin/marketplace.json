@@ -7,11 +7,7 @@
   "plugins": [
     {
       "name": "allscreenshots",
-      "source": {
-        "source": "github",
-        "repo": "allscreenshots/allscreenshots-plugin",
-        "ref": "main"
-      },
+      "source": "./claude-code-plugin",
       "description": "Take website screenshots via the Allscreenshots API.",
       "category": "Productivity",
       "tags": [

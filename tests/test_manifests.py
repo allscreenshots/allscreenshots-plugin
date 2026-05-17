@@ -6,10 +6,10 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_claude_plugin_manifest():
-    manifest = json.loads((ROOT / ".claude-plugin/plugin.json").read_text())
+    manifest = json.loads((ROOT / "claude-code-plugin/.claude-plugin/plugin.json").read_text())
 
     assert manifest["name"] == "allscreenshots"
-    assert manifest["version"] == "1.0.5"
+    assert manifest["version"] == "1.0.6"
     assert manifest["repository"] == "https://github.com/allscreenshots/allscreenshots-plugin"
     assert manifest["skills"] == "./skills/"
     assert "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py" in manifest["mcpServers"]["allscreenshots"]["args"]
@@ -22,11 +22,7 @@ def test_claude_marketplace_points_to_plugin_repository():
     assert marketplace["name"] == "allscreenshots"
     assert marketplace["owner"]["name"] == "Allscreenshots"
     assert plugin["name"] == "allscreenshots"
-    assert plugin["source"] == {
-        "source": "github",
-        "repo": "allscreenshots/allscreenshots-plugin",
-        "ref": "main",
-    }
+    assert plugin["source"] == "./claude-code-plugin"
 
 
 def test_legacy_claude_plugin_config_points_to_shared_server():
@@ -34,8 +30,13 @@ def test_legacy_claude_plugin_config_points_to_shared_server():
     server = config["allscreenshots"]
 
     assert server["command"] == "uv"
-    assert "../mcp_server/server.py" in server["args"]
-    assert server["env"]["ALLSCREENSHOTS_API_KEY"] == ""
+    assert "./mcp_server/server.py" in server["args"]
+    assert "env" not in server
+
+
+def test_claude_plugin_bundles_mcp_server():
+    assert (ROOT / "claude-code-plugin/mcp_server/server.py").is_file()
+    assert (ROOT / "claude-code-plugin/mcp_server/requirements.txt").is_file()
 
 
 def test_codex_plugin_manifest_points_to_shared_server():

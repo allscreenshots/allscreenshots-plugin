@@ -19,7 +19,14 @@ Add the Allscreenshots marketplace, then install the plugin:
 /plugin install allscreenshots@allscreenshots
 ```
 
-Restart Claude Code after installation. The plugin launches the shared MCP server in `mcp_server/server.py`.
+Restart Claude Code after installation. The Claude Code marketplace installs a small plugin package from `claude-code-plugin/`.
+
+If you already installed an older version and Claude Code still reports a plugin cache error, refresh the marketplace and update the plugin:
+
+```bash
+/plugin marketplace update allscreenshots
+/plugin update allscreenshots@allscreenshots
+```
 
 ### OpenAI Codex
 
