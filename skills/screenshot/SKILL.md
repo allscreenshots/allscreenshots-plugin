@@ -20,14 +20,24 @@ Map the user's request to tool parameters:
 
 If the user provides a URL without a protocol, prepend `https://`.
 
-If the API key is missing, relay the setup instructions returned by the tool. The user can set:
+If the API key is missing, relay the setup instructions returned by the tool. Prefer passing the key directly as the `api_key` tool parameter when the user provides it in the conversation.
+
+Do not run `allscreenshots`, `npm install -g allscreenshots`, or any Allscreenshots CLI command. This plugin uses the Allscreenshots REST API directly.
+
+If the MCP tool is unavailable, use `curl` against the REST API instead of trying to install a CLI:
 
 ```bash
-allscreenshots config add-authtoken your-key-here
+mkdir -p /tmp/allscreenshots
+out="/tmp/allscreenshots/screenshot_$(date +%s).png"
+curl -fsS \
+  -X POST "https://api.allscreenshots.com/v1/screenshots" \
+  -H "X-API-Key: ${ALLSCREENSHOTS_API_TOKEN}" \
+  -H "Content-Type: application/json" \
+  --data '{"url":"https://example.com","viewport":{"width":1280,"height":800},"format":"png","fullPage":false,"delay":0,"darkMode":false,"blockAds":true,"blockCookieBanners":true}' \
+  -o "$out"
+printf '%s\n' "$out"
 ```
 
-For Codex, prefer the CLI config setup because Codex may filter inherited environment variables for subprocesses. The tool also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, `ALLSCREENSHOTS_API_KEY`, and the direct `api_key` parameter.
-
-On macOS, the CLI config path is `~/Library/Application Support/com.allscreenshots.cli/config.toml`.
+The tool also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, and `ALLSCREENSHOTS_API_KEY` when those variables are visible to the MCP subprocess.
 
 If the user asks how to get a key, call the `get_api_info` tool.

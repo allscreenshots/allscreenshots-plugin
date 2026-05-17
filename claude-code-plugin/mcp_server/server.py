@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Allscreenshots MCP Server - take website screenshots via the Allscreenshots API."""
+"""Allscreenshots MCP server using only the Python standard library."""
 
 from __future__ import annotations
 
 import json
 import os
+import sys
 import time
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any
-
-import httpx
-from fastmcp import FastMCP
 
 
 API_URL = "https://api.allscreenshots.com/v1/screenshots"
@@ -29,10 +29,7 @@ CONFIG_PATHS = (
     Path("~/.allscreenshots/config.toml"),
 )
 
-mcp = FastMCP(
-    name="allscreenshots",
-    instructions="Take website screenshots via the Allscreenshots API",
-)
+SERVER_INFO = {"name": "allscreenshots", "version": "1.0.7"}
 
 
 def _read_api_key_from_config() -> str:
@@ -73,13 +70,14 @@ def _resolve_api_key(api_key_param: str | None) -> str:
     if not key:
         raise ValueError(
             "No API key provided. Either:\n"
-            "1. Store it in the Allscreenshots CLI config:\n"
-            "   allscreenshots config add-authtoken your-key-here\n"
+            "1. Pass api_key directly when calling this tool.\n"
             "2. Set an environment variable visible to the MCP process:\n"
             "   export ALLSCREENSHOTS_API_TOKEN=your-key-here\n"
             "   export ALLSCREENSHOTS_TOKEN=your-key-here\n"
             "   export ALLSCREENSHOTS_API_KEY=your-key-here\n"
-            "3. Or pass api_key directly when calling this tool.\n\n"
+            "3. Or write a compatible config file with [auth].api_key.\n\n"
+            "Codex may filter some environment variables for subprocesses, "
+            "so the api_key parameter is the most reliable setup for Codex.\n\n"
             "Get your API key at: https://allscreenshots.com/dashboard"
         )
     return key
@@ -130,8 +128,39 @@ def _write_screenshot(content: bytes, format: str) -> str:
     return str(path)
 
 
-@mcp.tool
-async def take_screenshot(
+def _post_screenshot(api_key: str, payload: dict[str, Any]) -> bytes:
+    data = json.dumps(payload).encode("utf-8")
+    request = urllib.request.Request(
+        API_URL,
+        data=data,
+        headers={
+            "Content-Type": "application/json",
+            "X-API-Key": api_key,
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=60.0) as response:
+            return response.read()
+    except urllib.error.HTTPError as exc:
+        body = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"Allscreenshots API request failed with HTTP {exc.code}: {body}") from exc
+    except TimeoutError as exc:
+        raise RuntimeError(
+            "Allscreenshots API request timed out. Retry with a simpler page, "
+            "smaller viewport, or lower resolution."
+        ) from exc
+    except urllib.error.URLError as exc:
+        if isinstance(exc.reason, TimeoutError):
+            raise RuntimeError(
+                "Allscreenshots API request timed out. Retry with a simpler page, "
+                "smaller viewport, or lower resolution."
+            ) from exc
+        raise RuntimeError(f"Allscreenshots API request failed: {exc.reason}") from exc
+
+
+def take_screenshot(
     url: str,
     api_key: str | None = None,
     width: int = 1280,
@@ -142,14 +171,7 @@ async def take_screenshot(
     dark_mode: bool = False,
     block_ads: bool = True,
 ) -> str:
-    """Take a screenshot of a website URL using the Allscreenshots API.
-
-    Returns the local file path of the saved screenshot image.
-
-    The API key is read from the api_key parameter, Allscreenshots environment
-    variables, or the Allscreenshots CLI config file.
-    If neither is set, returns an error message with setup instructions.
-    """
+    """Take a screenshot of a website URL using the Allscreenshots API."""
     try:
         resolved_key = _resolve_api_key(api_key)
         normalized_format = _validate_format(format)
@@ -163,32 +185,11 @@ async def take_screenshot(
             dark_mode=dark_mode,
             block_ads=block_ads,
         )
-
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(
-                API_URL,
-                headers={"X-API-Key": resolved_key},
-                json=payload,
-            )
-            response.raise_for_status()
-
-        return _write_screenshot(response.content, normalized_format)
-    except ValueError as exc:
+        return _write_screenshot(_post_screenshot(resolved_key, payload), normalized_format)
+    except (ValueError, RuntimeError) as exc:
         return str(exc)
-    except httpx.HTTPStatusError as exc:
-        body = exc.response.text
-        status_code = exc.response.status_code
-        return f"Allscreenshots API request failed with HTTP {status_code}: {body}"
-    except httpx.TimeoutException:
-        return (
-            "Allscreenshots API request timed out. Retry with a simpler page, "
-            "smaller viewport, or lower resolution."
-        )
-    except httpx.HTTPError as exc:
-        return f"Allscreenshots API request failed: {exc}"
 
 
-@mcp.tool
 def get_api_info() -> str:
     """Get information about the Allscreenshots API, including signup URL, docs, and supported features."""
     return json.dumps(
@@ -201,15 +202,116 @@ def get_api_info() -> str:
                 "Check your dashboard usage page for current quota and limits."
             ),
             "api_key_setup": (
-                "Use `allscreenshots config add-authtoken your-key-here`, "
-                "set ALLSCREENSHOTS_API_TOKEN or ALLSCREENSHOTS_TOKEN in the "
-                "MCP server environment, or pass api_key directly to "
-                "take_screenshot."
+                "Pass api_key directly to take_screenshot, set "
+                "ALLSCREENSHOTS_API_TOKEN or ALLSCREENSHOTS_TOKEN in the MCP "
+                "server environment, or write a compatible config file with "
+                "[auth].api_key. ALLSCREENSHOTS_API_KEY is also supported "
+                "when visible to the MCP subprocess."
             ),
         },
         indent=2,
     )
 
 
+TAKE_SCREENSHOT_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "url": {"type": "string", "description": "Website URL to screenshot."},
+        "api_key": {"type": "string", "description": "Optional Allscreenshots API key."},
+        "width": {"type": "integer", "default": 1280},
+        "height": {"type": "integer", "default": 800},
+        "format": {"type": "string", "enum": sorted(SUPPORTED_FORMATS), "default": "png"},
+        "full_page": {"type": "boolean", "default": False},
+        "delay": {"type": "integer", "default": 0},
+        "dark_mode": {"type": "boolean", "default": False},
+        "block_ads": {"type": "boolean", "default": True},
+    },
+    "required": ["url"],
+}
+
+TOOLS = [
+    {
+        "name": "take_screenshot",
+        "description": "Take a screenshot of a website URL using the Allscreenshots REST API.",
+        "inputSchema": TAKE_SCREENSHOT_SCHEMA,
+    },
+    {
+        "name": "get_api_info",
+        "description": "Get Allscreenshots API documentation, signup URL, and setup information.",
+        "inputSchema": {"type": "object", "properties": {}},
+    },
+]
+
+
+def _jsonrpc_result(message_id: Any, result: Any) -> dict[str, Any]:
+    return {"jsonrpc": "2.0", "id": message_id, "result": result}
+
+
+def _jsonrpc_error(message_id: Any, code: int, message: str) -> dict[str, Any]:
+    return {"jsonrpc": "2.0", "id": message_id, "error": {"code": code, "message": message}}
+
+
+def _tool_result(text: str, is_error: bool = False) -> dict[str, Any]:
+    result: dict[str, Any] = {"content": [{"type": "text", "text": text}]}
+    if is_error:
+        result["isError"] = True
+    return result
+
+
+def _call_tool(name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    if name == "take_screenshot":
+        return _tool_result(take_screenshot(**arguments))
+    if name == "get_api_info":
+        return _tool_result(get_api_info())
+    return _tool_result(f"Unknown tool: {name}", is_error=True)
+
+
+def _handle_request(message: dict[str, Any]) -> dict[str, Any] | None:
+    method = message.get("method")
+    message_id = message.get("id")
+
+    if message_id is None:
+        return None
+
+    if method == "initialize":
+        params = message.get("params", {})
+        return _jsonrpc_result(
+            message_id,
+            {
+                "protocolVersion": params.get("protocolVersion", "2024-11-05"),
+                "capabilities": {"tools": {}},
+                "serverInfo": SERVER_INFO,
+            },
+        )
+
+    if method == "ping":
+        return _jsonrpc_result(message_id, {})
+
+    if method == "tools/list":
+        return _jsonrpc_result(message_id, {"tools": TOOLS})
+
+    if method == "tools/call":
+        params = message.get("params", {})
+        name = params.get("name", "")
+        arguments = params.get("arguments") or {}
+        return _jsonrpc_result(message_id, _call_tool(name, arguments))
+
+    return _jsonrpc_error(message_id, -32601, f"Method not found: {method}")
+
+
+def serve_stdio() -> None:
+    for line in sys.stdin:
+        if not line.strip():
+            continue
+        try:
+            response = _handle_request(json.loads(line))
+        except Exception as exc:
+            response = _jsonrpc_error(None, -32603, str(exc))
+
+        if response is not None:
+            sys.stdout.write(json.dumps(response, separators=(",", ":")) + "\n")
+            sys.stdout.flush()
+
+
 if __name__ == "__main__":
-    mcp.run()
+    serve_stdio()

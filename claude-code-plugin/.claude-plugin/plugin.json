@@ -1,7 +1,7 @@
 {
   "name": "allscreenshots",
   "description": "Take website screenshots via the Allscreenshots API. Capture full pages, specific viewports, with dark mode and ad blocking support.",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "author": {
     "name": "Allscreenshots"
   },
@@ -11,15 +11,8 @@
   "skills": "./skills/",
   "mcpServers": {
     "allscreenshots": {
-      "command": "uv",
+      "command": "python3",
       "args": [
-        "run",
-        "--with",
-        "fastmcp>=2.0",
-        "--with",
-        "httpx>=0.27",
-        "fastmcp",
-        "run",
         "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py"
       ]
     }

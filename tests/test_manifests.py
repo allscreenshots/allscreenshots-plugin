@@ -9,7 +9,7 @@ def test_claude_plugin_manifest():
     manifest = json.loads((ROOT / "claude-code-plugin/.claude-plugin/plugin.json").read_text())
 
     assert manifest["name"] == "allscreenshots"
-    assert manifest["version"] == "1.0.6"
+    assert manifest["version"] == "1.0.7"
     assert manifest["repository"] == "https://github.com/allscreenshots/allscreenshots-plugin"
     assert manifest["skills"] == "./skills/"
     assert "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py" in manifest["mcpServers"]["allscreenshots"]["args"]
@@ -29,7 +29,8 @@ def test_legacy_claude_plugin_config_points_to_shared_server():
     config = json.loads((ROOT / "claude-code-plugin/.mcp.json").read_text())
     server = config["allscreenshots"]
 
-    assert server["command"] == "uv"
+    assert server["command"] == "python3"
+    assert "fastmcp" not in server["args"]
     assert "./mcp_server/server.py" in server["args"]
     assert "env" not in server
 
@@ -43,7 +44,7 @@ def test_codex_plugin_manifest_points_to_shared_server():
     manifest = json.loads((ROOT / ".codex-plugin/plugin.json").read_text())
 
     assert manifest["name"] == "allscreenshots"
-    assert manifest["version"] == "1.0.5"
+    assert manifest["version"] == "1.0.7"
     assert manifest["skills"] == "./skills/"
     assert manifest["mcpServers"] == "./.mcp.json"
     assert manifest["interface"]["displayName"] == "Allscreenshots"
@@ -53,7 +54,8 @@ def test_root_mcp_config_points_to_shared_server():
     config = json.loads((ROOT / ".mcp.json").read_text())
     server = config["mcpServers"]["allscreenshots"]
 
-    assert server["command"] == "uv"
+    assert server["command"] == "python3"
+    assert "fastmcp" not in server["args"]
     assert "./mcp_server/server.py" in server["args"]
     assert server["cwd"] == "."
     assert "env" not in server

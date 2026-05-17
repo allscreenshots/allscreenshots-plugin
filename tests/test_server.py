@@ -1,8 +1,8 @@
 import json
-import asyncio
+import io
+import urllib.error
 from pathlib import Path
 
-import httpx
 import pytest
 
 from mcp_server import server
@@ -54,7 +54,7 @@ def test_resolve_api_key_error_includes_setup(monkeypatch):
         server._resolve_api_key(None)
 
     message = str(exc.value)
-    assert "allscreenshots config add-authtoken" in message
+    assert "api_key" in message
     assert "ALLSCREENSHOTS_API_TOKEN" in message
     assert "https://allscreenshots.com/dashboard" in message
 
@@ -87,49 +87,49 @@ def test_take_screenshot_posts_to_api_and_writes_file(monkeypatch, tmp_path):
     calls = []
 
     class FakeResponse:
-        content = b"image-bytes"
-        text = ""
-        status_code = 200
-
-        def raise_for_status(self):
-            return None
-
-    class FakeClient:
-        def __init__(self, timeout):
-            self.timeout = timeout
-
-        async def __aenter__(self):
+        def __enter__(self):
             return self
 
-        async def __aexit__(self, exc_type, exc, tb):
+        def __exit__(self, exc_type, exc, tb):
             return False
 
-        async def post(self, url, headers, json):
-            calls.append({"url": url, "headers": headers, "json": json, "timeout": self.timeout})
-            return FakeResponse()
+        def read(self):
+            return b"image-bytes"
 
-    monkeypatch.setattr(server.httpx, "AsyncClient", FakeClient)
+    def fake_urlopen(request, timeout):
+        calls.append(
+            {
+                "url": request.full_url,
+                "headers": {
+                    "Content-Type": request.get_header("Content-type"),
+                    "X-API-Key": request.get_header("X-api-key"),
+                },
+                "json": json.loads(request.data.decode("utf-8")),
+                "timeout": timeout,
+            }
+        )
+        return FakeResponse()
+
+    monkeypatch.setattr(server.urllib.request, "urlopen", fake_urlopen)
     monkeypatch.setattr(server, "OUTPUT_DIR", tmp_path)
     monkeypatch.setattr(server.time, "time", lambda: 1234567890)
 
-    path = asyncio.run(
-        server.take_screenshot(
-            url="https://example.com",
-            api_key="key",
-            width=1280,
-            height=800,
-            format="png",
-            full_page=False,
-            delay=0,
-            dark_mode=False,
-            block_ads=True,
-        )
+    path = server.take_screenshot(
+        url="https://example.com",
+        api_key="key",
+        width=1280,
+        height=800,
+        format="png",
+        full_page=False,
+        delay=0,
+        dark_mode=False,
+        block_ads=True,
     )
 
     assert calls == [
         {
             "url": server.API_URL,
-            "headers": {"X-API-Key": "key"},
+            "headers": {"Content-Type": "application/json", "X-API-Key": "key"},
             "json": {
                 "url": "https://example.com",
                 "viewport": {"width": 1280, "height": 800},
@@ -148,33 +148,18 @@ def test_take_screenshot_posts_to_api_and_writes_file(monkeypatch, tmp_path):
 
 
 def test_take_screenshot_returns_http_error(monkeypatch):
-    request = httpx.Request("POST", server.API_URL)
-    response = httpx.Response(401, request=request, text="unauthorized")
+    def fake_urlopen(request, timeout):
+        raise urllib.error.HTTPError(
+            server.API_URL,
+            401,
+            "Unauthorized",
+            {},
+            io.BytesIO(b"unauthorized"),
+        )
 
-    class FakeResponse:
-        content = b""
-        text = "unauthorized"
-        status_code = 401
+    monkeypatch.setattr(server.urllib.request, "urlopen", fake_urlopen)
 
-        def raise_for_status(self):
-            raise httpx.HTTPStatusError("bad", request=request, response=response)
-
-    class FakeClient:
-        def __init__(self, timeout):
-            pass
-
-        async def __aenter__(self):
-            return self
-
-        async def __aexit__(self, exc_type, exc, tb):
-            return False
-
-        async def post(self, url, headers, json):
-            return FakeResponse()
-
-    monkeypatch.setattr(server.httpx, "AsyncClient", FakeClient)
-
-    message = asyncio.run(server.take_screenshot("https://example.com", api_key="bad-key"))
+    message = server.take_screenshot("https://example.com", api_key="bad-key")
 
     assert "HTTP 401" in message
     assert "unauthorized" in message

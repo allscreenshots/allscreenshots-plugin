@@ -51,10 +51,10 @@ codex plugin marketplace upgrade allscreenshots
 Configure your MCP client to run:
 
 ```bash
-uv run --with "fastmcp>=2.0" --with "httpx>=0.27" fastmcp run /path/to/allscreenshots-plugin/mcp_server/server.py
+python3 /path/to/allscreenshots-plugin/mcp_server/server.py
 ```
 
-Set an API key in the MCP server environment or store it with `allscreenshots config add-authtoken your-key-here`.
+Set an API key in the MCP server environment or pass it through the `api_key` tool parameter.
 
 ## Configuration
 
@@ -72,19 +72,9 @@ export ALLSCREENSHOTS_API_TOKEN=your-key-here
 
 You can also pass an API key directly through the `api_key` parameter when calling `take_screenshot`.
 
-For Codex marketplace installs, the most reliable setup is the Allscreenshots CLI config file because Codex can filter inherited environment variables for subprocesses:
+For Codex marketplace installs, passing the key directly through the `api_key` parameter avoids subprocess environment filtering. The MCP server also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, and `ALLSCREENSHOTS_API_KEY` when those variables are visible to the MCP subprocess.
 
-```bash
-allscreenshots config add-authtoken your-key-here
-```
-
-The MCP server also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, and `ALLSCREENSHOTS_API_KEY` when those variables are visible to the Codex MCP subprocess.
-
-On macOS, `allscreenshots config add-authtoken` writes to:
-
-```text
-~/Library/Application Support/com.allscreenshots.cli/config.toml
-```
+If the MCP tool is unavailable, the Allscreenshots REST API can be called directly with `curl`; no Allscreenshots CLI is required.
 
 ## Available Tools
 
@@ -109,7 +99,7 @@ Run the MCP server locally:
 ```bash
 cd mcp_server
 export ALLSCREENSHOTS_API_TOKEN=test-key
-uv run --with "fastmcp>=2.0" --with "httpx>=0.27" fastmcp run server.py
+python3 server.py
 ```
 
 Run tests:

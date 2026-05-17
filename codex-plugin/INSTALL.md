@@ -27,17 +27,7 @@ codex plugin marketplace upgrade allscreenshots
 
 ## API Key
 
-For Codex, the most reliable setup is the Allscreenshots CLI config file because Codex can filter inherited environment variables for subprocesses:
-
-```bash
-allscreenshots config add-authtoken your-key-here
-```
-
-On macOS, the CLI writes that key to:
-
-```text
-~/Library/Application Support/com.allscreenshots.cli/config.toml
-```
+For Codex, the most reliable setup is passing the key directly in the screenshot request so Codex can call the MCP tool with the `api_key` parameter. This avoids subprocess environment filtering.
 
 The MCP server also supports these environment variables when they are visible to the Codex MCP subprocess:
 
@@ -47,7 +37,7 @@ export ALLSCREENSHOTS_TOKEN=your-key-here
 export ALLSCREENSHOTS_API_KEY=your-key-here
 ```
 
-You can also provide the key directly in the screenshot request, and Codex can pass it as the `api_key` tool parameter.
+If the MCP tool is unavailable, use the Allscreenshots REST API directly with `curl`; no Allscreenshots CLI is required.
 
 ## Usage
 

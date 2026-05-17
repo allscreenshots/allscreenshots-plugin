@@ -1,15 +1,8 @@
 {
   "mcpServers": {
     "allscreenshots": {
-      "command": "uv",
+      "command": "python3",
       "args": [
-        "run",
-        "--with",
-        "fastmcp>=2.0",
-        "--with",
-        "httpx>=0.27",
-        "fastmcp",
-        "run",
         "./mcp_server/server.py"
       ],
       "cwd": "."
