@@ -9,10 +9,12 @@ def test_claude_plugin_manifest():
     manifest = json.loads((ROOT / "claude-code-plugin/.claude-plugin/plugin.json").read_text())
 
     assert manifest["name"] == "allscreenshots"
-    assert manifest["version"] == "1.0.7"
+    assert manifest["version"] == "1.0.8"
     assert manifest["repository"] == "https://github.com/allscreenshots/allscreenshots-plugin"
     assert manifest["skills"] == "./skills/"
-    assert "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py" in manifest["mcpServers"]["allscreenshots"]["args"]
+    server = manifest["mcpServers"]["allscreenshots"]
+    assert "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py" in server["args"]
+    assert server["env"] == {"ALLSCREENSHOTS_API_KEY": "${ALLSCREENSHOTS_API_KEY}"}
 
 
 def test_claude_marketplace_points_to_plugin_repository():
@@ -32,7 +34,7 @@ def test_legacy_claude_plugin_config_points_to_shared_server():
     assert server["command"] == "python3"
     assert "fastmcp" not in server["args"]
     assert "./mcp_server/server.py" in server["args"]
-    assert "env" not in server
+    assert server["env"] == {"ALLSCREENSHOTS_API_KEY": "${ALLSCREENSHOTS_API_KEY}"}
 
 
 def test_claude_plugin_bundles_mcp_server():
@@ -44,7 +46,7 @@ def test_codex_plugin_manifest_points_to_shared_server():
     manifest = json.loads((ROOT / ".codex-plugin/plugin.json").read_text())
 
     assert manifest["name"] == "allscreenshots"
-    assert manifest["version"] == "1.0.7"
+    assert manifest["version"] == "1.0.8"
     assert manifest["skills"] == "./skills/"
     assert manifest["mcpServers"] == "./.mcp.json"
     assert manifest["interface"]["displayName"] == "Allscreenshots"
@@ -58,7 +60,7 @@ def test_root_mcp_config_points_to_shared_server():
     assert "fastmcp" not in server["args"]
     assert "./mcp_server/server.py" in server["args"]
     assert server["cwd"] == "."
-    assert "env" not in server
+    assert server["env"] == {"ALLSCREENSHOTS_API_KEY": "${ALLSCREENSHOTS_API_KEY}"}
 
 
 def test_marketplace_points_to_root_plugin_repository():

@@ -10,52 +10,32 @@ from mcp_server import server
 
 def test_resolve_api_key_prefers_parameter(monkeypatch):
     monkeypatch.setenv("ALLSCREENSHOTS_API_KEY", "env-key")
-    monkeypatch.setattr(server, "CONFIG_PATHS", ())
 
     assert server._resolve_api_key("param-key") == "param-key"
 
 
 def test_resolve_api_key_uses_environment(monkeypatch):
     monkeypatch.setenv("ALLSCREENSHOTS_API_KEY", "env-key")
-    monkeypatch.setattr(server, "CONFIG_PATHS", ())
 
     assert server._resolve_api_key(None) == "env-key"
 
 
-def test_resolve_api_key_uses_token_environment_alias(monkeypatch):
-    monkeypatch.delenv("ALLSCREENSHOTS_API_KEY", raising=False)
-    monkeypatch.setenv("ALLSCREENSHOTS_API_TOKEN", "token-env-key")
-    monkeypatch.setattr(server, "CONFIG_PATHS", ())
+def test_resolve_api_key_ignores_unexpanded_placeholder(monkeypatch):
+    monkeypatch.setenv("ALLSCREENSHOTS_API_KEY", "${ALLSCREENSHOTS_API_KEY}")
 
-    assert server._resolve_api_key(None) == "token-env-key"
-
-
-def test_resolve_api_key_uses_cli_config(monkeypatch, tmp_path):
-    config = tmp_path / "config.toml"
-    config.write_text('[auth]\napi_key = "config-key"\n', encoding="utf-8")
-    for name in server.API_KEY_ENV_VARS:
-        monkeypatch.delenv(name, raising=False)
-    monkeypatch.setattr(server, "CONFIG_PATHS", (config,))
-
-    assert server._resolve_api_key(None) == "config-key"
-
-
-def test_default_config_paths_include_macos_cli_location():
-    assert Path("~/Library/Application Support/com.allscreenshots.cli/config.toml") in server.CONFIG_PATHS
+    with pytest.raises(ValueError):
+        server._resolve_api_key(None)
 
 
 def test_resolve_api_key_error_includes_setup(monkeypatch):
     monkeypatch.delenv("ALLSCREENSHOTS_API_KEY", raising=False)
-    monkeypatch.delenv("ALLSCREENSHOTS_API_TOKEN", raising=False)
-    monkeypatch.delenv("ALLSCREENSHOTS_TOKEN", raising=False)
-    monkeypatch.setattr(server, "CONFIG_PATHS", ())
 
     with pytest.raises(ValueError) as exc:
         server._resolve_api_key(None)
 
     message = str(exc.value)
     assert "api_key" in message
-    assert "ALLSCREENSHOTS_API_TOKEN" in message
+    assert "ALLSCREENSHOTS_API_KEY" in message
     assert "https://allscreenshots.com/dashboard" in message
 
 

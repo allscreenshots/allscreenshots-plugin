@@ -1,7 +1,7 @@
 {
   "name": "allscreenshots",
   "description": "Take website screenshots via the Allscreenshots API. Capture full pages, specific viewports, with dark mode and ad blocking support.",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "author": {
     "name": "Allscreenshots"
   },
@@ -14,7 +14,10 @@
       "command": "python3",
       "args": [
         "${CLAUDE_PLUGIN_ROOT}/mcp_server/server.py"
-      ]
+      ],
+      "env": {
+        "ALLSCREENSHOTS_API_KEY": "${ALLSCREENSHOTS_API_KEY}"
+      }
     }
   }
 }

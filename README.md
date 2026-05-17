@@ -67,12 +67,12 @@ https://allscreenshots.com/dashboard
 Then set it as an environment variable:
 
 ```bash
-export ALLSCREENSHOTS_API_TOKEN=your-key-here
+export ALLSCREENSHOTS_API_KEY=your-key-here
 ```
 
 You can also pass an API key directly through the `api_key` parameter when calling `take_screenshot`.
 
-For Codex marketplace installs, passing the key directly through the `api_key` parameter avoids subprocess environment filtering. The MCP server also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, and `ALLSCREENSHOTS_API_KEY` when those variables are visible to the MCP subprocess.
+The MCP server reads `ALLSCREENSHOTS_API_KEY` when that variable is visible to the MCP subprocess. You can also pass an API key directly through the `api_key` parameter when calling `take_screenshot`.
 
 If the MCP tool is unavailable, the Allscreenshots REST API can be called directly with `curl`; no Allscreenshots CLI is required.
 
@@ -98,7 +98,7 @@ Run the MCP server locally:
 
 ```bash
 cd mcp_server
-export ALLSCREENSHOTS_API_TOKEN=test-key
+export ALLSCREENSHOTS_API_KEY=test-key
 python3 server.py
 ```
 

@@ -16,68 +16,29 @@ from typing import Any
 API_URL = "https://api.allscreenshots.com/v1/screenshots"
 OUTPUT_DIR = Path("/tmp/allscreenshots")
 SUPPORTED_FORMATS = {"png", "jpeg", "webp"}
-API_KEY_ENV_VARS = (
-    "ALLSCREENSHOTS_API_KEY",
-    "ALLSCREENSHOTS_API_TOKEN",
-    "ALLSCREENSHOTS_TOKEN",
-)
-CONFIG_PATHS = (
-    Path("~/Library/Application Support/com.allscreenshots.cli/config.toml"),
-    Path("~/Library/Application Support/com.allscreenshots.cli/config/config.toml"),
-    Path("~/.config/allscreenshots/cli/config.toml"),
-    Path("~/.config/allscreenshots/config.toml"),
-    Path("~/.allscreenshots/config.toml"),
-)
+API_KEY_ENV_VAR = "ALLSCREENSHOTS_API_KEY"
 
-SERVER_INFO = {"name": "allscreenshots", "version": "1.0.7"}
+SERVER_INFO = {"name": "allscreenshots", "version": "1.0.8"}
 
 
-def _read_api_key_from_config() -> str:
-    for config_path in CONFIG_PATHS:
-        path = config_path.expanduser()
-        if not path.exists():
-            continue
-
-        try:
-            contents = path.read_text(encoding="utf-8")
-        except OSError:
-            continue
-
-        in_auth_section = False
-        for raw_line in contents.splitlines():
-            line = raw_line.strip()
-            if not line or line.startswith("#"):
-                continue
-            if line.startswith("[") and line.endswith("]"):
-                in_auth_section = line == "[auth]"
-                continue
-            if in_auth_section and line.startswith("api_key"):
-                _, _, value = line.partition("=")
-                key = value.strip().strip('"').strip("'")
-                if key:
-                    return key
-
-    return ""
+def _usable_api_key(value: str | None) -> str:
+    key = (value or "").strip()
+    if key.startswith("${") and key.endswith("}"):
+        return ""
+    return key
 
 
 def _resolve_api_key(api_key_param: str | None) -> str:
-    """Resolve API key from parameter, environment variable, or config file."""
-    key = api_key_param or ""
+    """Resolve API key from parameter or ALLSCREENSHOTS_API_KEY."""
+    key = _usable_api_key(api_key_param)
     if not key:
-        key = next((os.environ.get(name, "") for name in API_KEY_ENV_VARS if os.environ.get(name)), "")
-    if not key:
-        key = _read_api_key_from_config()
+        key = _usable_api_key(os.environ.get(API_KEY_ENV_VAR))
     if not key:
         raise ValueError(
             "No API key provided. Either:\n"
             "1. Pass api_key directly when calling this tool.\n"
-            "2. Set an environment variable visible to the MCP process:\n"
-            "   export ALLSCREENSHOTS_API_TOKEN=your-key-here\n"
-            "   export ALLSCREENSHOTS_TOKEN=your-key-here\n"
-            "   export ALLSCREENSHOTS_API_KEY=your-key-here\n"
-            "3. Or write a compatible config file with [auth].api_key.\n\n"
-            "Codex may filter some environment variables for subprocesses, "
-            "so the api_key parameter is the most reliable setup for Codex.\n\n"
+            "2. Set ALLSCREENSHOTS_API_KEY before starting the MCP client:\n"
+            "   export ALLSCREENSHOTS_API_KEY=your-key-here\n\n"
             "Get your API key at: https://allscreenshots.com/dashboard"
         )
     return key
@@ -202,11 +163,8 @@ def get_api_info() -> str:
                 "Check your dashboard usage page for current quota and limits."
             ),
             "api_key_setup": (
-                "Pass api_key directly to take_screenshot, set "
-                "ALLSCREENSHOTS_API_TOKEN or ALLSCREENSHOTS_TOKEN in the MCP "
-                "server environment, or write a compatible config file with "
-                "[auth].api_key. ALLSCREENSHOTS_API_KEY is also supported "
-                "when visible to the MCP subprocess."
+                "Pass api_key directly to take_screenshot or set "
+                "ALLSCREENSHOTS_API_KEY before starting the MCP client."
             ),
         },
         indent=2,

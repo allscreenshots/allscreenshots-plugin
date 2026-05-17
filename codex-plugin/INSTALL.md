@@ -29,11 +29,9 @@ codex plugin marketplace upgrade allscreenshots
 
 For Codex, the most reliable setup is passing the key directly in the screenshot request so Codex can call the MCP tool with the `api_key` parameter. This avoids subprocess environment filtering.
 
-The MCP server also supports these environment variables when they are visible to the Codex MCP subprocess:
+The MCP server reads this environment variable when it is visible to the Codex MCP subprocess:
 
 ```bash
-export ALLSCREENSHOTS_API_TOKEN=your-key-here
-export ALLSCREENSHOTS_TOKEN=your-key-here
 export ALLSCREENSHOTS_API_KEY=your-key-here
 ```
 

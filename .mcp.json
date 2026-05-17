@@ -5,7 +5,10 @@
       "args": [
         "./mcp_server/server.py"
       ],
-      "cwd": "."
+      "cwd": ".",
+      "env": {
+        "ALLSCREENSHOTS_API_KEY": "${ALLSCREENSHOTS_API_KEY}"
+      }
     }
   }
 }

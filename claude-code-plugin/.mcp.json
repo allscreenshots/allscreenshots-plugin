@@ -3,6 +3,9 @@
     "command": "python3",
     "args": [
       "./mcp_server/server.py"
-    ]
+    ],
+    "env": {
+      "ALLSCREENSHOTS_API_KEY": "${ALLSCREENSHOTS_API_KEY}"
+    }
   }
 }

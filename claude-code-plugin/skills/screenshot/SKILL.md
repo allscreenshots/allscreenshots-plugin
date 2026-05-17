@@ -14,7 +14,7 @@ If the key is missing, the tool returns setup instructions. Relay these to the u
 
 Do not run `allscreenshots`, `npm install -g allscreenshots`, or any Allscreenshots CLI command. This plugin uses the Allscreenshots REST API directly.
 
-The preferred path is the `take_screenshot` MCP tool. Pass the user's key with the `api_key` parameter if the user provides one in the conversation. The tool also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, and `ALLSCREENSHOTS_API_KEY` when those variables are visible to the MCP process.
+The preferred path is the `take_screenshot` MCP tool. The tool reads `ALLSCREENSHOTS_API_KEY` from the MCP process environment. Pass the user's key with the `api_key` parameter only if the user provides one in the conversation.
 
 If the MCP server is not connected, use `curl` against the REST API instead of trying to install a CLI. Save the response body to `/tmp/allscreenshots/`.
 
@@ -23,7 +23,7 @@ mkdir -p /tmp/allscreenshots
 out="/tmp/allscreenshots/screenshot_$(date +%s).png"
 curl -fsS \
   -X POST "https://api.allscreenshots.com/v1/screenshots" \
-  -H "X-API-Key: ${ALLSCREENSHOTS_API_TOKEN}" \
+  -H "X-API-Key: ${ALLSCREENSHOTS_API_KEY}" \
   -H "Content-Type: application/json" \
   --data '{"url":"https://example.com","viewport":{"width":1280,"height":800},"format":"png","fullPage":false,"delay":0,"darkMode":false,"blockAds":true,"blockCookieBanners":true}' \
   -o "$out"

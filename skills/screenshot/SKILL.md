@@ -31,13 +31,13 @@ mkdir -p /tmp/allscreenshots
 out="/tmp/allscreenshots/screenshot_$(date +%s).png"
 curl -fsS \
   -X POST "https://api.allscreenshots.com/v1/screenshots" \
-  -H "X-API-Key: ${ALLSCREENSHOTS_API_TOKEN}" \
+  -H "X-API-Key: ${ALLSCREENSHOTS_API_KEY}" \
   -H "Content-Type: application/json" \
   --data '{"url":"https://example.com","viewport":{"width":1280,"height":800},"format":"png","fullPage":false,"delay":0,"darkMode":false,"blockAds":true,"blockCookieBanners":true}' \
   -o "$out"
 printf '%s\n' "$out"
 ```
 
-The tool also supports `ALLSCREENSHOTS_API_TOKEN`, `ALLSCREENSHOTS_TOKEN`, and `ALLSCREENSHOTS_API_KEY` when those variables are visible to the MCP subprocess.
+The tool reads `ALLSCREENSHOTS_API_KEY` when that variable is visible to the MCP subprocess.
 
 If the user asks how to get a key, call the `get_api_info` tool.
