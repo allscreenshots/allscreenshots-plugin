@@ -96,7 +96,8 @@ If the MCP tool is unavailable, the Allscreenshots REST API can be called direct
 
 ### Official MCP Registry
 
-The hosted MCP server is registered as `com.allscreenshots/allscreenshots`:
+The canonical publishing name is `com.allscreenshots/allscreenshots`. Its registry
+URL will become available after the namespace migration is published:
 
 https://registry.modelcontextprotocol.io/v0.1/servers/com.allscreenshots%2Fallscreenshots/versions/latest
 
@@ -110,8 +111,14 @@ private seed is held in the `MCP_REGISTRY_PRIVATE_KEY` repository secret; never
 commit that key. GitHub OIDC authentication only grants `io.github.*` namespaces
 and cannot publish the domain-based name.
 
-The older `io.github.allscreenshots/allscreenshots` entry is retained during the
-Glama listing transition. Client endpoint configurations do not need to change.
+The registry allows a remote endpoint URL to belong to only one server name.
+The initial migration therefore requires retiring every version of
+`io.github.allscreenshots/allscreenshots` before publishing the domain-based name;
+merely deprecating the old entry does not release its URL. This retirement is
+pending explicit owner approval. Preserve the old metadata before migration and
+restore its status if the new publication fails. Once the new entry is live,
+Glama support needs its link to review the existing listing's transition. Client
+endpoint configurations do not need to change.
 
 Run the MCP server locally:
 
