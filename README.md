@@ -94,6 +94,25 @@ If the MCP tool is unavailable, the Allscreenshots REST API can be called direct
 
 ## Development
 
+### Official MCP Registry
+
+The hosted MCP server is registered as `com.allscreenshots/allscreenshots`:
+
+https://registry.modelcontextprotocol.io/v0.1/servers/com.allscreenshots%2Fallscreenshots/versions/latest
+
+`server.json` is the publishing manifest. The endpoint remains
+`https://mcp.allscreenshots.com/mcp/v1`, with OAuth sign-in or an optional `X-API-Key` header.
+
+To publish an updated version, bump `version` in `server.json`, commit it, and run
+the **Publish to MCP registry** workflow. It authenticates ownership through
+`https://allscreenshots.com/.well-known/mcp-registry-auth`. The matching Ed25519
+private seed is held in the `MCP_REGISTRY_PRIVATE_KEY` repository secret; never
+commit that key. GitHub OIDC authentication only grants `io.github.*` namespaces
+and cannot publish the domain-based name.
+
+The older `io.github.allscreenshots/allscreenshots` entry is retained during the
+Glama listing transition. Client endpoint configurations do not need to change.
+
 Run the MCP server locally:
 
 ```bash

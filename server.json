@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.allscreenshots/allscreenshots",
+  "name": "com.allscreenshots/allscreenshots",
   "description": "Capture website screenshots, run bulk captures, and manage screenshot schedules and history.",
   "title": "Allscreenshots",
   "version": "1.0.1",

@@ -1,6 +1,7 @@
-# Publishes server.json to the official MCP registry (io.github.allscreenshots/allscreenshots).
+# Publishes server.json to the official MCP registry (com.allscreenshots/allscreenshots).
 # Manual only: run from the Actions tab after bumping "version" in server.json.
-# Auth uses GitHub Actions OIDC, so no secrets are needed for io.github.allscreenshots/* names.
+# Domain authentication uses the public proof on allscreenshots.com and the
+# MCP_REGISTRY_PRIVATE_KEY repository secret (Ed25519 seed, 64 hex characters).
 name: Publish to MCP registry
 
 on:
@@ -10,7 +11,6 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write
       contents: read
     steps:
       - uses: actions/checkout@v4
@@ -22,8 +22,15 @@ jobs:
       - name: Validate server.json
         run: ./mcp-publisher validate server.json
 
-      - name: Login (GitHub OIDC)
-        run: ./mcp-publisher login github-oidc
+      - name: Login (allscreenshots.com domain)
+        env:
+          MCP_REGISTRY_PRIVATE_KEY: ${{ secrets.MCP_REGISTRY_PRIVATE_KEY }}
+        run: |
+          if [ -z "$MCP_REGISTRY_PRIVATE_KEY" ]; then
+            echo "Configure the MCP_REGISTRY_PRIVATE_KEY repository secret before publishing."
+            exit 1
+          fi
+          ./mcp-publisher login http --domain=allscreenshots.com --private-key="$MCP_REGISTRY_PRIVATE_KEY"
 
       - name: Publish
         run: ./mcp-publisher publish server.json
