@@ -1,0 +1,24 @@
+{
+  "name": "allscreenshots",
+  "version": "1.0.1",
+  "description": "Capture website screenshots, run bulk captures, and manage screenshot schedules and history.",
+  "settings": [
+    {
+      "name": "API Key",
+      "description": "Optional Allscreenshots API key from https://allscreenshots.com/dashboard. Leave this blank to authenticate with OAuth instead. When set, Gemini CLI sends it as the X-API-Key request header.",
+      "envVar": "ALLSCREENSHOTS_API_KEY",
+      "sensitive": true
+    }
+  ],
+  "mcpServers": {
+    "allscreenshots": {
+      "httpUrl": "https://mcp.allscreenshots.com/mcp/v1",
+      "headers": {
+        "X-API-Key": "$ALLSCREENSHOTS_API_KEY"
+      },
+      "oauth": {
+        "enabled": true
+      }
+    }
+  }
+}
